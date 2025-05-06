@@ -1,0 +1,56 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+venv.bak/
+*.env
+
+# === Flask Instance & Upload Folders ===
+instance/
+uploads/
+*.db
+*.sqlite3
+
+# === Secrets ===
+service_account.json
+.env
+
+# === macOS ===
+.DS_Store
+
+# === VS Code ===
+.vscode/
+
+# === Render or Other Deploy Files ===
+*.log
+*.pid
+
+# === Byte-compiled / Cache ===
+*.pyc
+*.pyo
+*.pyd
+*.pycache/
+
+# === Coverage ===
+htmlcov/
+.coverage
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+
+# === Tests ===
+test-results/
+
+# === Node (if any front-end tooling later) ===
+node_modules/
+dist/
+build/
+
+# === System Files ===
+Thumbs.db
