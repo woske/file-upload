@@ -4,6 +4,8 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from PIL import Image
+import json
+from io import StringIO
 import os
 from threading import Thread
 
@@ -16,12 +18,10 @@ ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'mp4', 'mov', 'avi'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # === Google Drive Setup ===
-SERVICE_ACCOUNT_FILE = 'service_account.json'
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 
-creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
-)
+service_account_info = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS_JSON'])
+creds = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
 drive_service = build('drive', 'v3', credentials=creds)
 FOLDER_ID = '1Eum2pFA2Q2785D6tUZ2WJH0gHvy7YtLy'  # Replace with your own folder ID
 
