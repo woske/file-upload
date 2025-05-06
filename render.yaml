@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: wedding-uploader
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    envVars:
+      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+        value: <your json string here>  # paste the whole JSON as one line or set this securely in Render UI
+      - key: FLASK_ENV
+        value: production
