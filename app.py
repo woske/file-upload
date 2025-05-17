@@ -72,7 +72,7 @@ def index():
     error = None
     if request.method == 'POST':
         pin = request.form.get('pin')
-        if pin == PIN_CODE:
+        if pin.lower() == PIN_CODE.lower():
             session['authenticated'] = True
             return redirect(url_for('upload'))
         else:
