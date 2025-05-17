@@ -25,7 +25,7 @@ creds = service_account.Credentials.from_service_account_info(service_account_in
 drive_service = build('drive', 'v3', credentials=creds)
 FOLDER_ID = '1Eum2pFA2Q2785D6tUZ2WJH0gHvy7YtLy'  # Replace with your own folder ID
 
-PIN_CODE = '2025wedding'  # Customize your PIN
+PIN_CODE = 'valette2025'  # Customize your PIN
 
 # === Helpers ===
 def allowed_file(filename):
