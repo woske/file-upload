@@ -8,11 +8,9 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       background-color: #f8f8f8;
+      display: flex;
+      justify-content: center;
     }
 
     .container {
@@ -27,51 +25,41 @@
 
     h2 {
       margin-bottom: 20px;
-      font-size: 1.4rem;
     }
 
-    input[type="file"] {
+    input[type="file"], button {
       width: 100%;
       font-size: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
-
-    .spinner {
+    .progress-container {
       display: none;
-      margin: 20px auto;
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #4caf50;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
+      margin-top: 20px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background-color: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 20px;
+      width: 0%;
+      background-color: #4caf50;
+      text-align: center;
+      color: white;
+      line-height: 20px;
+      transition: width 0.2s;
     }
 
     #loading {
       display: none;
+      margin-top: 10px;
       font-weight: bold;
       color: green;
-      margin-top: 15px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -79,37 +67,63 @@
 
   <div class="container">
     <h2>Share Your Photos With Us!</h2>
-
-    <form method="POST" enctype="multipart/form-data" onsubmit="startUpload()">
-        <input type="file" id="fileInput" name="file" multiple accept="image/jpeg,image/png,video/mp4,video/quicktime,video/x-msvideo" required>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" name="file" multiple accept="image/jpeg,image/png,video/mp4,video/quicktime,video/x-msvideo" required>
       <button type="submit">Upload</button>
-      <small style="display:block; margin-top:5px; color:gray;">
-        ⏳ Selecting large videos or images from your gallery may take a few seconds to load before the upload begins. Please wait...
-      </small>
-      
     </form>
 
-    <div class="spinner" id="spinner"></div>
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="progressFill">0%</div>
+      </div>
+    </div>
     <div id="loading">📸 Uploading... Please don’t close or refresh this page!</div>
   </div>
 
   <script>
-    let uploading = false;
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const loadingText = document.getElementById('loading');
 
-    function startUpload() {
-      uploading = true;
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('spinner').style.display = 'block';
-    }
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const files = fileInput.files;
+      if (!files.length) return;
 
-    window.addEventListener('beforeunload', function (e) {
-      if (uploading) {
-        const confirmationMessage = "Your upload is still in progress. Are you sure you want to leave or refresh this page?";
-        e.preventDefault();
-        e.returnValue = confirmationMessage;
-        return confirmationMessage;
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('file', files[i]);
       }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+
+      xhr.upload.onprogress = function(event) {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          progressFill.style.width = percent + '%';
+          progressFill.textContent = percent + '%';
+        }
+      };
+
+      xhr.onloadstart = function() {
+        progressContainer.style.display = 'block';
+        loadingText.style.display = 'block';
+      };
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          window.location.href = "/thank-you";
+        } else {
+          alert('Upload failed.');
+        }
+      };
+
+      xhr.send(formData);
     });
   </script>
+
 </body>
 </html>
