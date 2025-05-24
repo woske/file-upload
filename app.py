@@ -52,19 +52,36 @@ def upload_to_drive(local_path, filename, folder_id=None):
     ).execute()
     return uploaded_file.get('id')
 
+import time
+
 def background_upload_and_cleanup(files, folder_id):
+    MAX_RETRIES = 5
+    INITIAL_DELAY = 30  # seconds
+
     for local_path, filename in files:
-        try:
-            upload_to_drive(local_path, filename, folder_id)
-            print(f"[UPLOAD] {filename} uploaded.")
-        except Exception as e:
-            print(f"[ERROR] Failed to upload {filename}: {e}")
-            continue
-        try:
-            os.remove(local_path)
-            print(f"[CLEANUP] Deleted {filename}")
-        except Exception as e:
-            print(f"[WARN] Could not delete {filename}: {e}")
+        success = False
+        delay = INITIAL_DELAY
+
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                upload_to_drive(local_path, filename, folder_id)
+                print(f"[UPLOAD] {filename} uploaded on attempt {attempt}.")
+                success = True
+                break
+            except Exception as e:
+                print(f"[RETRY {attempt}] Failed to upload {filename}: {e}")
+                time.sleep(delay)
+                delay *= 2  # exponential backoff
+
+        if success:
+            try:
+                os.remove(local_path)
+                print(f"[CLEANUP] Deleted {filename}")
+            except Exception as e:
+                print(f"[WARN] Could not delete {filename}: {e}")
+        else:
+            print(f"[FAILED] Giving up on {filename} after {MAX_RETRIES} attempts.")
+
 
 # === Routes ===
 @app.route('/', methods=['GET', 'POST'])
